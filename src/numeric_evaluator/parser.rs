@@ -32,10 +32,10 @@ fn parse_function(pairs: Pairs<Rule>) -> Expr {
         match pair.as_rule() {
             Rule::function_name => name = String::from(pair.as_str()),
             Rule::function_args => {
-                for arg in pair.into_inner() {
-                    let arg = parse_expr(arg.into_inner());
-                    args.push(Box::new(arg));
-                }
+                args = pair
+                    .into_inner()
+                    .map(|arg| Box::new(parse_expr(arg.into_inner())))
+                    .collect()
             }
             _ => panic!("Unknown"),
         }
