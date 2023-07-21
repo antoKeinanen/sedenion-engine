@@ -1,3 +1,6 @@
+use std::f64::consts::PI;
+
+use crate::math::{round, deg_to_rad};
 use super::{parse, Expr, Op};
 
 fn evaluate_expr(expr: Expr) -> f64 {
@@ -16,17 +19,17 @@ fn evaluate_expr(expr: Expr) -> f64 {
             "cos" => {
                 assert_eq!(args.len(), 1);
                 let arg = args.iter().next().unwrap().to_owned();
-                evaluate_expr(*arg).cos()
+                deg_to_rad(evaluate_expr(*arg)).cos()
             }
             "sin" => {
                 assert_eq!(args.len(), 1);
                 let arg = args.iter().next().unwrap().to_owned();
-                evaluate_expr(*arg).sin()
+                deg_to_rad(evaluate_expr(*arg)).sin()
             }
             "tan" => {
                 assert_eq!(args.len(), 1);
                 let arg = args.iter().next().unwrap().to_owned();
-                evaluate_expr(*arg).cos()
+                deg_to_rad(evaluate_expr(*arg)).tan()
             }
             "floor" => {
                 assert_eq!(args.len(), 1);
@@ -87,7 +90,7 @@ fn evaluate_expr(expr: Expr) -> f64 {
 }
 
 pub fn evaluate(expression: &str) -> f64 {
-    evaluate_expr(parse(expression))
+    round(evaluate_expr(parse(expression)), 15)
 }
 
 #[cfg(test)]
@@ -95,55 +98,55 @@ mod Test {
     use crate::numeric_evaluator::evaluate;
 
     #[test]
-    fn can_parse_plus() {
+    fn can_eval_plus() {
         assert_eq!(7.0, evaluate("2+5"));
         assert_eq!(-7.0, evaluate("-2+-5"));
         assert_eq!(14.0, evaluate("2+5+7"));
     }
 
     #[test]
-    fn can_parse_minus() {
+    fn can_eval_minus() {
         assert_eq!(-4.0, evaluate("3-7"));
         assert_eq!(4.0, evaluate("-3--7"));
         assert_eq!(-8.0, evaluate("3-7-4"));
     }
 
     #[test]
-    fn can_parse_multiply() {
+    fn can_eval_multiply() {
         assert_eq!(18.0, evaluate("6*3"));
         assert_eq!(18.0, evaluate("-6*-3"));
         assert_eq!(144.0, evaluate("6*3*8"));
     }
 
     #[test]
-    fn can_parse_divide() {
+    fn can_eval_divide() {
         assert_eq!(0.1, evaluate("1/10"));
         assert_eq!(0.1, evaluate("-1/-10"));
         assert_eq!(0.02, evaluate("1/10/5"));
     }
 
     #[test]
-    fn can_parse_modulus() {
+    fn can_eval_modulus() {
         assert_eq!(1.0, evaluate("3%2"));
         assert_eq!(1.0, evaluate("-3%-2"));
         assert_eq!(1.0, evaluate("3%2%3"));
     }
 
     #[test]
-    fn can_parse_power() {
+    fn can_eval_power() {
         assert_eq!(9.0, evaluate("3^2"));
         assert_eq!(0.0625, evaluate("-4^-2"));
         assert_eq!(43046721.0, evaluate("3^2^4"));
     }
 
     #[test]
-    fn can_parse_decimal() {
+    fn can_eval_decimal() {
         assert_eq!(3.2, evaluate("3.2"));
         assert_eq!(-3.2, evaluate("-3.2"));
     }
 
     #[test]
-    fn can_parse_order_of_operations() {
+    fn can_eval_order_of_operations() {
         assert_eq!(14.0, evaluate("2+4*3"));
         assert_eq!(18.0, evaluate("(2+4)*3"));
 
@@ -161,12 +164,26 @@ mod Test {
     }
 
     #[test]
-    fn can_parse_tests_wikipedia() {
+    fn can_eval_tests_wikipedia() {
         assert_eq!(3.0001220703125, evaluate("3+4*2/(1-5)^2^3"));
     }
 
     #[test]
-    fn can_parse_functions() {
+    fn can_eval_functions() {
+        assert_eq!(0.5, evaluate("cos(60)"));
+        assert_eq!(0.5, evaluate("sin(30)"));
+        assert_eq!(1.0, evaluate("tan(45)"));
+        assert_eq!(1.0, evaluate("tan(45)"));
+        assert_eq!(4.0, evaluate("floor(4.5)"));
+        assert_eq!(5.0, evaluate("ceil(4.5)"));
+        assert_eq!(5.0, evaluate("round(4.6)"));
+        assert_eq!(1.0, evaluate("trunc(1.128)"));
+        assert_eq!(0.128, evaluate("fract(1.128)"));
+        assert_eq!(2.0, evaluate("sqrt(4)"));
+        assert_eq!(16.0, evaluate("pow(4, 2)"));
+        assert_eq!(2.0, evaluate("min(4, 2)"));
+        assert_eq!(4.0, evaluate("max(4, 2)"));
+
         assert_eq!(6.0, evaluate("max(1, 2) + 4"));
         assert_eq!(8.0, evaluate("4 + min(5, 4)"));
         assert_eq!(29.0, evaluate("7 + max(2, min(47.94, trunc(22.54)))"));
