@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
     Number(f64),
     UnaryMinus(Box<Expr>),
@@ -7,9 +7,13 @@ pub enum Expr {
         op: Op,
         rhs: Box<Expr>,
     },
+    Function {
+        name: String,
+        args: Vec<Box<Expr>>,
+    },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Op {
     Add,
     Subtract,
@@ -38,6 +42,14 @@ impl ToString for Expr {
                 };
 
                 out.push_str(&format!("({lhs}{op}{rhs})"));
+            }
+            Expr::Function { name, args } => {
+                let args = args
+                    .into_iter()
+                    .map(|arg| arg.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ");
+                out.push_str(&format!("{name}({args})"));
             }
         }
         return out;

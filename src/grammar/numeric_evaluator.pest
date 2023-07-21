@@ -2,12 +2,12 @@
 number = @{ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
 
 unary_minus =  { "-" }
-primary     = _{ number | "(" ~ expr ~ ")" }
-atom        = _{ unary_minus? ~ primary }
+primary     = _{ number | "(" ~ expr ~ ")"}
+atom        = _{ unary_minus? ~ primary | function }
 
 function_name = @{ ASCII_ALPHA+ }
-function_args =  { expr | ("," ~ expr)* }
-function      =  _{ function_name ~ "(" ~ function_args ~ ")" }
+function_args = { expr ~ ("," ~ expr)* }
+function      = { function_name ~ "(" ~ function_args ~ ")" }
 
 bin_op   = _{ add | subtract | multiply | divide | modulo | power }
 add      =  { "+" }
@@ -17,7 +17,7 @@ divide   =  { "/" }
 modulo   =  { "%" }
 power    =  { "^" }
 
-expr = { atom ~ (bin_op ~ atom)* | function }
+expr = { atom ~ (bin_op ~ atom)* }
 
 equation = _{ SOI ~ expr ~ EOI }
 

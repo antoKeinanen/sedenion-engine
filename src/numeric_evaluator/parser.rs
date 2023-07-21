@@ -1,7 +1,7 @@
 use core::panic;
-use pest::iterators::Pairs;
 use pest::pratt_parser::PrattParser;
 use pest::Parser;
+use pest::{iterators::Pairs, Token};
 use std::io::{self, BufRead};
 
 use super::{Expr, Op};
@@ -17,12 +17,31 @@ lazy_static::lazy_static! {
 
         // Precedence is defined lowest to highest
         PrattParser::new()
-            // Addition and subtract have equal precedence
             .op(Op::infix(add, Left) | Op::infix(subtract, Left))
             .op(Op::infix(multiply, Left) | Op::infix(divide, Left) | Op::infix(modulo, Left))
             .op(Op::infix(power, Right))
             .op(Op::prefix(unary_minus))
-    };
+        };
+}
+
+fn parse_function(pairs: Pairs<Rule>) -> Expr {
+    let mut name = String::from("parse_failure_function");
+    let mut args: Vec<Box<Expr>> = Vec::new();
+
+    for pair in pairs {
+        match pair.as_rule() {
+            Rule::function_name => name = String::from(pair.as_str()),
+            Rule::function_args => {
+                for arg in pair.into_inner() {
+                    let arg = parse_expr(arg.into_inner());
+                    args.push(Box::new(arg));
+                }
+            }
+            _ => panic!("Unknown"),
+        }
+    }
+
+    Expr::Function { name, args }
 }
 
 pub fn parse_expr(pairs: Pairs<Rule>) -> Expr {
@@ -30,6 +49,7 @@ pub fn parse_expr(pairs: Pairs<Rule>) -> Expr {
         .map_primary(|primary| match primary.as_rule() {
             Rule::number => Expr::Number(primary.as_str().parse::<f64>().unwrap()),
             Rule::expr => parse_expr(primary.into_inner()),
+            Rule::function => parse_function(primary.into_inner()),
             rule => unreachable!("Expr::parse expected atom, found {:?}", rule),
         })
         .map_infix(|lhs, op, rhs| {
@@ -54,7 +74,6 @@ pub fn parse_expr(pairs: Pairs<Rule>) -> Expr {
         })
         .parse(pairs)
 }
-
 
 pub fn parse(expression: &str) -> Expr {
     let mut pairs = CalculatorParser::parse(Rule::equation, expression).unwrap();
@@ -137,11 +156,19 @@ mod Test {
             "(3+((4*2)/((1-5)^(2^3))))",
             parse("3+4*2/(1-5)^2^3").to_string()
         );
-        //TODO
+        assert_eq!(
+            "sin(((max(2, 3)/3)*3.1415))",
+            parse("sin(max(2, 3) / 3 * 3.1415)").to_string()
+        );
     }
 
     #[test]
-    fn can_parse_tests_() {
-        assert_eq!("(cos(1))", parse("cos(1)").to_string());
+    fn can_parse_functions() {
+        assert_eq!("(max(1, 2)+4)", parse("max(1, 2) + 4").to_string());
+        assert_eq!("(4+min(5, 4))", parse("4 + min(5, 4)").to_string());
+        assert_eq!(
+            "(7+max(2, min(47.94, trunc(22.54))))",
+            parse("7 + max(2, min(47.94, trunc(22.54)))").to_string()
+        );
     }
 }
