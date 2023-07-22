@@ -13,6 +13,8 @@ napi-derive = "2.12.2"
 pest = "2.6"
 pest_derive = "2.6"
 lazy_static = "1.4.0"
+thiserror = "1.0.44"
+anyhow = "1.0.72"
 
 [build-dependencies]
 napi-build = "2.0.1"
