@@ -1,11 +1,7 @@
-use std::f64::consts::PI;
-use anyhow::{Result, bail};
+use anyhow::{bail, Result};
 
 use super::{parse, Expr, Op};
-use crate::{
-    error::EvaluatorError,
-    math::{deg_to_rad, round},
-};
+use crate::math::{deg_to_rad, round};
 
 fn evaluate_expr(expr: Expr) -> Result<f64> {
     match expr {
@@ -189,6 +185,9 @@ mod Test {
 
         assert_eq!(6.0, evaluate("max(1, 2) + 4").unwrap());
         assert_eq!(8.0, evaluate("4 + min(5, 4)").unwrap());
-        assert_eq!(29.0, evaluate("7 + max(2, min(47.94, trunc(22.54)))").unwrap());
+        assert_eq!(
+            29.0,
+            evaluate("7 + max(2, min(47.94, trunc(22.54)))").unwrap()
+        );
     }
 }

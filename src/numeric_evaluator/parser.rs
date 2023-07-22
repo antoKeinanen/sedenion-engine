@@ -1,9 +1,7 @@
 use anyhow::{bail, Result};
-use core::panic;
 use pest::pratt_parser::PrattParser;
-use pest::{iterators::Pairs, Token};
-use pest::{Parser, RuleType};
-use std::io::{self, BufRead};
+use pest::iterators::Pairs;
+use pest::Parser;
 
 use crate::error::ParserError;
 
