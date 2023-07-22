@@ -3,7 +3,9 @@ edition = "2021"
 name = "solvurus_engine"
 version = "0.1.1"
 repository = "https://github.com/antoKeinanen/solvurus-engine"
-licence = "GNU GPLv3"
+license = "GNU GPLv3"
+license-file = "LICENSE"
+readme = "readme.md"
 
 [lib]
 crate-type = ["lib", "cdylib"]
