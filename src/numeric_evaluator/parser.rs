@@ -87,7 +87,7 @@ fn parse_expr(pairs: Pairs<Rule>) -> Result<Expr> {
 }
 
 pub fn parse(expression: &str) -> Result<Expr> {
-    let mut pairs = CalculatorParser::parse(Rule::equation, expression).unwrap();
+    let mut pairs = CalculatorParser::parse(Rule::equation, expression)?;
     parse_expr(pairs.next().unwrap().into_inner())
 }
 

@@ -1,3 +1,3 @@
 mod error;
-mod numeric_evaluator;
+pub mod numeric_evaluator;
 mod math;
