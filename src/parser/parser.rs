@@ -8,7 +8,7 @@ use crate::error::ParserError;
 use super::{Expr, Op};
 
 #[derive(pest_derive::Parser)]
-#[grammar = "grammar/numeric_evaluator.pest"]
+#[grammar = "grammar/sedenion.pest"]
 pub(crate) struct CalculatorParser;
 
 lazy_static::lazy_static! {
@@ -91,7 +91,7 @@ pub fn parse(expression: &str) -> Result<Expr> {
 
 #[cfg(test)]
 mod Test {
-    use crate::numeric_evaluator::parse;
+    use crate::parser::parse;
 
     #[test]
     fn can_parse_plus() {
