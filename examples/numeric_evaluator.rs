@@ -1,7 +1,7 @@
 use std::io::{self, BufRead};
 
 use anyhow::Result;
-use solvurus_engine::numeric_evaluator::evaluate;
+use sedenion_engine::numeric_evaluator::evaluate;
 
 fn main() -> Result<()> {
     let stdin = io::stdin();
