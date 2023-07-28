@@ -1,8 +1,8 @@
 [package]
 edition = "2021"
-name = "solvurus_engine"
+name = "sedenion_engine"
 version = "0.1.2"
-repository = "https://github.com/antoKeinanen/solvurus-engine"
+repository = "https://github.com/SedenionCas/sedenion-engine"
 license = "GNU GPLv3"
 license-file = "LICENSE"
 readme = "readme.md"

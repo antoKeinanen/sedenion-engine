@@ -1,12 +1,12 @@
-# Solvurus Engine
-![npm](https://img.shields.io/npm/v/solvurus_engine)
-![GitHub](https://img.shields.io/github/license/antoKeinanen/solvurus-engine)
+# Sedenion Engine
+![npm](https://img.shields.io/npm/v/sedenion_engine)
+![GitHub](https://img.shields.io/github/license/SedenionCas/sedenion-engine)
 
-Solvurus Engine is an open-source project that offers a scientific calculator and CAS (Computer Algebra System) solver. This repository contains the Rust source code used by Solvurus to parse and evaluate expressions.
+Sedenion Engine is an open-source project that offers a scientific calculator and CAS (Computer Algebra System) solver. This repository contains the Rust source code used by Sedenion to parse and evaluate expressions.
 
 ## Building the Project
 
-To build the Solvurus engine to WebAssembly (wasm), follow these steps:
+To build the Sedenion engine to WebAssembly (wasm), follow these steps:
 
 1. Make sure you have `wasm-pack` installed on your system.
 2. Execute the following command: `wasm-pack build --target bundler`.
@@ -17,20 +17,20 @@ To build the Solvurus engine to WebAssembly (wasm), follow these steps:
 This project is licensed under GNU GPL-v3. You can find more detailed information in the `LICENSE` file located in the root of this repository.
 
 ## Features
-Currently solvurus engine only supports numerical evaluation.
+Currently Sedenion engine only supports numerical evaluation.
 
 ## Getting Started
 
-To use the Solvurus Engine in your project, follow the steps below:
+To use the Sedenion Engine in your project, follow the steps below:
 
 1. Install the NPM package generated during the build process.
    ```
-   npm install solvurus_engine
+   npm install sedenion_engine
    ```
 
-2. Import the Solvurus module in your JavaScript or TypeScript code.
+2. Import the Sedenion module in your JavaScript or TypeScript code.
    ```javascript
-   import {} from 'solvurus-engine';
+   import {} from 'sedenion-engine';
    ```
 
 3. Call the functions in your app.
@@ -41,11 +41,11 @@ To use the Solvurus Engine in your project, follow the steps below:
 
 ## Contributing
 
-We welcome contributions from the community to enhance Solvurus Engine further. If you want to contribute, please follow the guidelines outlined in the `contributing.md` file.
+We welcome contributions from the community to enhance Sedenion Engine further. If you want to contribute, please follow the guidelines outlined in the `contributing.md` file.
 
 ## Support
 
-If you encounter any issues or have questions regarding the Solvurus Engine, please [open an issue](https://github.com/antoKeinanen/solvurus-engine/issues) on our GitHub repository.
+If you encounter any issues or have questions regarding the Sedenion Engine, please [open an issue](https://github.com/SedenionCas/sedenion-engine/issues) on our GitHub repository.
 
 ## Acknowledgments
 
