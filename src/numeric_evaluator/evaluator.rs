@@ -1,7 +1,8 @@
 use anyhow::{bail, Result};
 
-use crate::parser::{parse, Expr, Op};
+use crate::error::EvaluatorError;
 use crate::math::{deg_to_rad, round};
+use crate::parser::{parse, Expr, Op};
 
 fn evaluate_expr(expr: Expr) -> Result<f64> {
     match expr {
@@ -12,6 +13,7 @@ fn evaluate_expr(expr: Expr) -> Result<f64> {
             Op::Divide => Ok(evaluate_expr(*lhs)? / evaluate_expr(*rhs)?),
             Op::Modulo => Ok((evaluate_expr(*lhs)? % evaluate_expr(*rhs)?).abs()),
             Op::Power => Ok(evaluate_expr(*lhs)?.powf(evaluate_expr(*rhs)?)),
+            Op::Equals => bail!(EvaluatorError::EqualityInEval),
         },
         Expr::Number(val) => Ok(val),
         Expr::UnaryMinus(op) => Ok(-1.0 * evaluate_expr(*op)?),
