@@ -9,18 +9,19 @@ function_name = @{ ASCII_ALPHA+ }
 function_args =  { expr ~ ("," ~ expr)* }
 function      =  { function_name ~ "(" ~ function_args ~ ")" }
 
-variable   = @{ ASCII_ALPHA_UPPER }
+variable    = @{ ASCII_ALPHA_UPPER }
 coefficient =  { number }
-exponent   =  { power ~ number }
-monomial   =  { coefficient? ~ variable ~ exponent? }
+exponent    =  { power ~ number }
+monomial    =  { coefficient? ~ variable ~ exponent? }
 
-bin_op   = _{ add | subtract | multiply | divide | modulo | power }
+bin_op   = _{ add | subtract | multiply | divide | modulo | power | equals}
 add      =  { "+" }
 subtract =  { "-" }
 multiply =  { "*" }
 divide   =  { "/" }
 modulo   =  { "%" }
 power    =  { "^" }
+equals   =  { "=" }
 
 expr = { atom ~ (bin_op ~ atom)* }
 

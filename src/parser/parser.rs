@@ -1,7 +1,7 @@
 use anyhow::{bail, Result};
-use pest::iterators::Pairs;
 use pest::pratt_parser::PrattParser;
 use pest::Parser;
+use pest::{iterators::Pairs, pratt_parser::Assoc};
 
 use crate::error::ParserError;
 
@@ -22,6 +22,7 @@ lazy_static::lazy_static! {
             .op(Op::infix(multiply, Left) | Op::infix(divide, Left) | Op::infix(modulo, Left))
             .op(Op::infix(power, Right))
             .op(Op::prefix(unary_minus))
+            .op(Op::infix(equals, Left))
         };
 }
 
@@ -61,7 +62,7 @@ fn parse_monomial(pairs: Pairs<Rule>) -> Result<Expr> {
             Rule::coefficient => coefficient = Some(pair.as_str().parse::<f64>()?),
             Rule::variable => variable = Some(pair.as_str().to_string()),
             Rule::exponent => {
-                let pair =  match pair.as_str().strip_prefix("^") {
+                let pair = match pair.as_str().strip_prefix("^") {
                     Some(val) => val,
                     None => bail!(ParserError::InvalidToken(format!("{:?}", pair.as_str()))),
                 };
@@ -70,7 +71,6 @@ fn parse_monomial(pairs: Pairs<Rule>) -> Result<Expr> {
             rule => bail!(ParserError::InvalidToken(format!("{:?}", rule))),
         }
     }
-
 
     Ok(Expr::Monomial {
         coefficient: coefficient.unwrap_or(1.0),
@@ -115,6 +115,26 @@ fn parse_expr(pairs: Pairs<Rule>) -> Result<Expr> {
 pub fn parse(expression: &str) -> Result<Expr> {
     let mut pairs = CalculatorParser::parse(Rule::equation, expression)?;
     parse_expr(pairs.next().unwrap().into_inner())
+}
+
+pub fn parse_equation(expression: &str) -> Result<Expr> {
+    if !expression.contains("=") {
+        bail!(ParserError::NoEquals);
+    }
+
+    let expression: Vec<&str> = expression.split("=").collect();
+    if expression.len() != 2 {
+        bail!(ParserError::EqualsCount);
+    }
+
+    let lhs = parse(expression[0])?;
+    let rhs = parse(expression[1])?;
+
+    Ok(Expr::BinOp {
+        lhs: Box::new(lhs),
+        op: Op::Equals,
+        rhs: Box::new(rhs),
+    })
 }
 
 #[cfg(test)]

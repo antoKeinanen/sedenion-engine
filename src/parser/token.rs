@@ -26,6 +26,7 @@ pub enum Op {
     Divide,
     Modulo,
     Power,
+    Equals,
 }
 
 impl Expr {
@@ -288,6 +289,7 @@ impl ToString for Expr {
                     Op::Divide => '/',
                     Op::Modulo => '%',
                     Op::Power => '^',
+                    Op::Equals => '=',
                 };
 
                 out.push_str(&format!("({lhs}{op}{rhs})"));
