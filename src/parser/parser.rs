@@ -210,4 +210,11 @@ mod Test {
                 .to_string()
         );
     }
+
+    #[test]
+    fn can_parse_monomials() {
+        assert_eq!("3X^(2)", parse("3X^2").unwrap().to_string());
+        assert_eq!("312A^(221)", parse("312A^221").unwrap().to_string());
+        assert_eq!("1B^(1)", parse("B").unwrap().to_string());
+    }
 }
