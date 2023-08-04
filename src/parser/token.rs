@@ -11,6 +11,11 @@ pub enum Expr {
         name: String,
         args: Vec<Box<Expr>>,
     },
+    Monomial {
+        coefficient: f64,
+        variable: String,
+        exponent: f64,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -124,11 +129,16 @@ impl Expr {
                 // a * a = a^2
                 if let Op::Multiply = op {
                     if optimized_lhs == optimized_rhs {
-                        return Expr::BinOp {
-                            lhs: Box::new(optimized_lhs),
-                            op: Op::Power,
-                            rhs: Box::new(Expr::Number(2.0)),
-                        };
+                        if let (Expr::Monomial { .. }, Expr::Monomial { .. }) =
+                            (&optimized_lhs, &optimized_rhs)
+                        {
+                        } else {
+                            return Expr::BinOp {
+                                lhs: Box::new(optimized_lhs),
+                                op: Op::Power,
+                                rhs: Box::new(Expr::Number(2.0)),
+                            };
+                        }
                     }
                 }
 
@@ -201,6 +211,54 @@ impl Expr {
                     }
                 }
 
+                // aX^b + cX^d = (a+b)X^(b+d)
+                if let (
+                    Expr::Monomial {
+                        coefficient: left_coefficient,
+                        variable: left_variable,
+                        exponent: left_exponent,
+                    },
+                    Expr::Monomial {
+                        coefficient: right_coefficient,
+                        variable: right_variable,
+                        exponent: right_exponent,
+                    },
+                    Op::Add,
+                ) = (&optimized_lhs, &optimized_rhs, op)
+                {
+                    if left_variable == right_variable && left_exponent == right_exponent {
+                        return Expr::Monomial {
+                            coefficient: left_coefficient + right_coefficient,
+                            variable: left_variable.to_owned(),
+                            exponent: left_exponent.to_owned(),
+                        };
+                    }
+                }
+
+                // aX^b * cX^d = (a*b)X^(b*d)
+                if let (
+                    Expr::Monomial {
+                        coefficient: left_coefficient,
+                        variable: left_variable,
+                        exponent: left_exponent,
+                    },
+                    Expr::Monomial {
+                        coefficient: right_coefficient,
+                        variable: right_variable,
+                        exponent: right_exponent,
+                    },
+                    Op::Multiply,
+                ) = (&optimized_lhs, &optimized_rhs, op)
+                {
+                    if left_variable == right_variable {
+                        return Expr::Monomial {
+                            coefficient: left_coefficient * right_coefficient,
+                            variable: left_variable.to_owned(),
+                            exponent: left_exponent + right_exponent,
+                        };
+                    }
+                }
+
                 Expr::BinOp {
                     lhs: Box::new(optimized_lhs),
                     op: *op,
@@ -208,6 +266,7 @@ impl Expr {
                 }
             }
             Expr::Number(n) => Expr::Number(*n),
+            Expr::Monomial { .. } => return self.clone(),
             token => todo!("Optimizing for '{token:?}' not implemented yet!"),
         }
     }
@@ -241,6 +300,11 @@ impl ToString for Expr {
                     .join(", ");
                 out.push_str(&format!("{name}({args})"));
             }
+            Expr::Monomial {
+                coefficient,
+                variable,
+                exponent,
+            } => out.push_str(&format!("{coefficient}{variable}^({exponent})")),
         }
         return out;
     }
@@ -371,5 +435,17 @@ mod test {
     fn can_optimize_multiple_layers() {
         assert_eq!("(1/(3213*2))", setup_multi("(3213*2)^(-1)"));
         assert_eq!("(1/0)", setup_multi("(53*88*(52-52))^(-(125/125))"));
+    }
+
+    #[test]
+    fn can_optimize_monomial_plus() {
+        assert_eq!("8X^(8)", setup_single("2X^8+6X^8"));
+        assert_eq!("2X^(1)", setup_single("X+X"));
+    }
+
+    #[test]
+    fn can_optimize_monomial_multiply() {
+        assert_eq!("12X^(10)", setup_single("2X^8*6X^2"));
+        assert_eq!("1X^(2)", setup_single("X*X"));
     }
 }

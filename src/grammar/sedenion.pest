@@ -2,12 +2,17 @@
 number = @{ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
 
 unary_minus =  { "-" }
-primary     = _{ number | "(" ~ expr ~ ")"}
-atom        = _{ unary_minus? ~ primary | function }
+primary     = _{ number | "(" ~ expr ~ ")" }
+atom        = _{ monomial | unary_minus? ~ primary | function }
 
 function_name = @{ ASCII_ALPHA+ }
-function_args = { expr ~ ("," ~ expr)* }
-function      = { function_name ~ "(" ~ function_args ~ ")" }
+function_args =  { expr ~ ("," ~ expr)* }
+function      =  { function_name ~ "(" ~ function_args ~ ")" }
+
+variable   = @{ ASCII_ALPHA_UPPER }
+coefficient =  { number }
+exponent   =  { power ~ number }
+monomial   =  { coefficient? ~ variable ~ exponent? }
 
 bin_op   = _{ add | subtract | multiply | divide | modulo | power }
 add      =  { "+" }
