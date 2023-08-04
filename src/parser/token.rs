@@ -24,6 +24,18 @@ pub enum Op {
 }
 
 impl Expr {
+    pub fn optimize_expression(self) -> Expr {
+        let mut old = self.clone();
+        let mut latest = self.optimize_node();
+
+        while old != latest {
+            old = latest.clone();
+            latest = latest.optimize_node();
+        }
+
+        latest
+    }
+
     fn optimize_node(&self) -> Expr {
         match self {
             Expr::UnaryMinus(inner) => {
