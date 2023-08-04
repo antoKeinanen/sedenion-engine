@@ -73,9 +73,9 @@ fn parse_monomial(pairs: Pairs<Rule>) -> Result<Expr> {
 
 
     Ok(Expr::Monomial {
-        coefficient: coefficient.unwrap(),
+        coefficient: coefficient.unwrap_or(1.0),
         variable: variable.unwrap(),
-        exponent: exponent.unwrap(),
+        exponent: exponent.unwrap_or(1.0),
     })
 }
 
