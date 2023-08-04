@@ -1,6 +1,6 @@
 use anyhow::{bail, Result};
-use pest::pratt_parser::PrattParser;
 use pest::iterators::Pairs;
+use pest::pratt_parser::PrattParser;
 use pest::Parser;
 
 use crate::error::ParserError;
@@ -52,12 +52,40 @@ fn parse_function(pairs: Pairs<Rule>) -> Result<Expr> {
     }
 }
 
+fn parse_monomial(pairs: Pairs<Rule>) -> Result<Expr> {
+    let mut coefficient: Option<f64> = None;
+    let mut exponent: Option<f64> = None;
+    let mut variable: Option<String> = None;
+    for pair in pairs {
+        match pair.as_rule() {
+            Rule::coefficient => coefficient = Some(pair.as_str().parse::<f64>()?),
+            Rule::variable => variable = Some(pair.as_str().to_string()),
+            Rule::exponent => {
+                let pair =  match pair.as_str().strip_prefix("^") {
+                    Some(val) => val,
+                    None => bail!(ParserError::InvalidToken(format!("{:?}", pair.as_str()))),
+                };
+                exponent = Some(pair.parse::<f64>()?);
+            }
+            rule => bail!(ParserError::InvalidToken(format!("{:?}", rule))),
+        }
+    }
+
+
+    Ok(Expr::Monomial {
+        coefficient: coefficient.unwrap(),
+        variable: variable.unwrap(),
+        exponent: exponent.unwrap(),
+    })
+}
+
 fn parse_expr(pairs: Pairs<Rule>) -> Result<Expr> {
     PRATT_PARSER
         .map_primary(|primary| match primary.as_rule() {
             Rule::number => Ok(Expr::Number(primary.as_str().parse::<f64>().unwrap())),
             Rule::expr => parse_expr(primary.into_inner()),
             Rule::function => parse_function(primary.into_inner()),
+            Rule::monomial => parse_monomial(primary.into_inner()),
             rule => bail!(ParserError::InvalidToken(format!("{:?}", rule))),
         })
         .map_infix(|lhs, op, rhs| {

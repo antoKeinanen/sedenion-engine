@@ -11,6 +11,11 @@ pub enum Expr {
         name: String,
         args: Vec<Box<Expr>>,
     },
+    Monomial {
+        coefficient: f64,
+        variable: String,
+        exponent: f64,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -241,6 +246,11 @@ impl ToString for Expr {
                     .join(", ");
                 out.push_str(&format!("{name}({args})"));
             }
+            Expr::Monomial {
+                coefficient,
+                variable,
+                exponent,
+            } => out.push_str(&format!("{coefficient}{variable}^({exponent})")),
         }
         return out;
     }
