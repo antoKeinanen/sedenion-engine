@@ -139,7 +139,12 @@ pub fn parse_equation(expression: &str) -> Result<Expr> {
 
 #[cfg(test)]
 mod Test {
-    use crate::parser::parse;
+    use crate::parser::{parse, parser::parse_equation};
+
+
+    fn setup_equation(expression: &str) -> String {
+        parse_equation(expression).unwrap().to_string()
+    }
 
     #[test]
     fn can_parse_plus() {
@@ -233,8 +238,13 @@ mod Test {
 
     #[test]
     fn can_parse_monomials() {
-        assert_eq!("3X^(2)", parse("3X^2").unwrap().to_string());
-        assert_eq!("312A^(221)", parse("312A^221").unwrap().to_string());
-        assert_eq!("1B^(1)", parse("B").unwrap().to_string());
+        assert_eq!("3X^(2)", setup_basic("3X^2"));
+        assert_eq!("312A^(221)", setup_basic("312A^221"));
+        assert_eq!("1B^(1)", setup_basic("B"));
+    }
+
+    #[test]
+    fn can_parse_equations() {
+        assert_eq!("((1+1)=(4-2))", setup_equation("1+1=4-2"))
     }
 }
