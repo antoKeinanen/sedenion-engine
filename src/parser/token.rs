@@ -129,11 +129,16 @@ impl Expr {
                 // a * a = a^2
                 if let Op::Multiply = op {
                     if optimized_lhs == optimized_rhs {
-                        return Expr::BinOp {
-                            lhs: Box::new(optimized_lhs),
-                            op: Op::Power,
-                            rhs: Box::new(Expr::Number(2.0)),
-                        };
+                        if let (Expr::Monomial { .. }, Expr::Monomial { .. }) =
+                            (&optimized_lhs, &optimized_rhs)
+                        {
+                        } else {
+                            return Expr::BinOp {
+                                lhs: Box::new(optimized_lhs),
+                                op: Op::Power,
+                                rhs: Box::new(Expr::Number(2.0)),
+                            };
+                        }
                     }
                 }
 
@@ -206,6 +211,54 @@ impl Expr {
                     }
                 }
 
+                // aX^b + cX^d = (a+b)X^(b+d)
+                if let (
+                    Expr::Monomial {
+                        coefficient: left_coefficient,
+                        variable: left_variable,
+                        exponent: left_exponent,
+                    },
+                    Expr::Monomial {
+                        coefficient: right_coefficient,
+                        variable: right_variable,
+                        exponent: right_exponent,
+                    },
+                    Op::Add,
+                ) = (&optimized_lhs, &optimized_rhs, op)
+                {
+                    if left_variable == right_variable && left_exponent == right_exponent {
+                        return Expr::Monomial {
+                            coefficient: left_coefficient + right_coefficient,
+                            variable: left_variable.to_owned(),
+                            exponent: left_exponent.to_owned(),
+                        };
+                    }
+                }
+
+                // aX^b * cX^d = (a*b)X^(b*d)
+                if let (
+                    Expr::Monomial {
+                        coefficient: left_coefficient,
+                        variable: left_variable,
+                        exponent: left_exponent,
+                    },
+                    Expr::Monomial {
+                        coefficient: right_coefficient,
+                        variable: right_variable,
+                        exponent: right_exponent,
+                    },
+                    Op::Multiply,
+                ) = (&optimized_lhs, &optimized_rhs, op)
+                {
+                    if left_variable == right_variable {
+                        return Expr::Monomial {
+                            coefficient: left_coefficient * right_coefficient,
+                            variable: left_variable.to_owned(),
+                            exponent: left_exponent + right_exponent,
+                        };
+                    }
+                }
+
                 Expr::BinOp {
                     lhs: Box::new(optimized_lhs),
                     op: *op,
@@ -213,6 +266,7 @@ impl Expr {
                 }
             }
             Expr::Number(n) => Expr::Number(*n),
+            Expr::Monomial { .. } => return self.clone(),
             token => todo!("Optimizing for '{token:?}' not implemented yet!"),
         }
     }
