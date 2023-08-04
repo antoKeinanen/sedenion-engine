@@ -1,6 +1,6 @@
 use anyhow::{bail, Result};
 
-use super::{parse, Expr, Op};
+use crate::parser::{parse, Expr, Op};
 use crate::math::{deg_to_rad, round};
 
 fn evaluate_expr(expr: Expr) -> Result<f64> {

@@ -1,6 +1,6 @@
 use anyhow::{bail, Result};
-use pest::pratt_parser::PrattParser;
 use pest::iterators::Pairs;
+use pest::pratt_parser::PrattParser;
 use pest::Parser;
 
 use crate::error::ParserError;
@@ -8,7 +8,7 @@ use crate::error::ParserError;
 use super::{Expr, Op};
 
 #[derive(pest_derive::Parser)]
-#[grammar = "grammar/numeric_evaluator.pest"]
+#[grammar = "grammar/sedenion.pest"]
 pub(crate) struct CalculatorParser;
 
 lazy_static::lazy_static! {
@@ -52,12 +52,40 @@ fn parse_function(pairs: Pairs<Rule>) -> Result<Expr> {
     }
 }
 
+fn parse_monomial(pairs: Pairs<Rule>) -> Result<Expr> {
+    let mut coefficient: Option<f64> = None;
+    let mut exponent: Option<f64> = None;
+    let mut variable: Option<String> = None;
+    for pair in pairs {
+        match pair.as_rule() {
+            Rule::coefficient => coefficient = Some(pair.as_str().parse::<f64>()?),
+            Rule::variable => variable = Some(pair.as_str().to_string()),
+            Rule::exponent => {
+                let pair =  match pair.as_str().strip_prefix("^") {
+                    Some(val) => val,
+                    None => bail!(ParserError::InvalidToken(format!("{:?}", pair.as_str()))),
+                };
+                exponent = Some(pair.parse::<f64>()?);
+            }
+            rule => bail!(ParserError::InvalidToken(format!("{:?}", rule))),
+        }
+    }
+
+
+    Ok(Expr::Monomial {
+        coefficient: coefficient.unwrap_or(1.0),
+        variable: variable.unwrap(),
+        exponent: exponent.unwrap_or(1.0),
+    })
+}
+
 fn parse_expr(pairs: Pairs<Rule>) -> Result<Expr> {
     PRATT_PARSER
         .map_primary(|primary| match primary.as_rule() {
             Rule::number => Ok(Expr::Number(primary.as_str().parse::<f64>().unwrap())),
             Rule::expr => parse_expr(primary.into_inner()),
             Rule::function => parse_function(primary.into_inner()),
+            Rule::monomial => parse_monomial(primary.into_inner()),
             rule => bail!(ParserError::InvalidToken(format!("{:?}", rule))),
         })
         .map_infix(|lhs, op, rhs| {
@@ -91,7 +119,7 @@ pub fn parse(expression: &str) -> Result<Expr> {
 
 #[cfg(test)]
 mod Test {
-    use crate::numeric_evaluator::parse;
+    use crate::parser::parse;
 
     #[test]
     fn can_parse_plus() {
@@ -181,5 +209,12 @@ mod Test {
                 .unwrap()
                 .to_string()
         );
+    }
+
+    #[test]
+    fn can_parse_monomials() {
+        assert_eq!("3X^(2)", parse("3X^2").unwrap().to_string());
+        assert_eq!("312A^(221)", parse("312A^221").unwrap().to_string());
+        assert_eq!("1B^(1)", parse("B").unwrap().to_string());
     }
 }
