@@ -3,6 +3,7 @@ use wasm_bindgen::prelude::*;
 mod math;
 mod error;
 mod parser;
+mod optimizer;
 pub mod numeric_evaluator;
 
 #[wasm_bindgen]
