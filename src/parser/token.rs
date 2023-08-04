@@ -436,4 +436,16 @@ mod test {
         assert_eq!("(1/(3213*2))", setup_multi("(3213*2)^(-1)"));
         assert_eq!("(1/0)", setup_multi("(53*88*(52-52))^(-(125/125))"));
     }
+
+    #[test]
+    fn can_optimize_monomial_plus() {
+        assert_eq!("8X^(8)", setup_single("2X^8+6X^8"));
+        assert_eq!("2X^(1)", setup_single("X+X"));
+    }
+
+    #[test]
+    fn can_optimize_monomial_multiply() {
+        assert_eq!("12X^(10)", setup_single("2X^8*6X^2"));
+        assert_eq!("1X^(2)", setup_single("X*X"));
+    }
 }
