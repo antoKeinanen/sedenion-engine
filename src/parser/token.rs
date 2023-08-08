@@ -29,11 +29,57 @@ pub enum Op {
     Equals,
 }
 
-pub trait Optimize {
-    fn optimize_expression(self) -> Expr;
-    fn optimize_node(&self) -> Expr;
-    fn optimize_equation(self) -> Expr;
-} 
+impl Expr {
+    pub fn print_expr(&self, indent: usize) {
+        match self {
+            Expr::Number(num) => println!("{:indent$}Number: {}", "", num, indent = indent),
+            Expr::UnaryMinus(expr) => {
+                println!("{:indent$}UnaryMinus", "", indent = indent);
+                expr.print_expr(indent + 2);
+            }
+            Expr::BinOp { lhs, op, rhs } => {
+                println!("{:indent$}BinOp: {:?}", "", op, indent = indent);
+                lhs.print_expr(indent + 2);
+                rhs.print_expr(indent + 2);
+            }
+            Expr::Function { name, args } => {
+                println!("{:indent$}Function: {}", "", name, indent = indent);
+                for arg in args {
+                    arg.print_expr(indent + 2);
+                }
+            }
+            Expr::Monomial {
+                coefficient,
+                variable,
+                exponent,
+            } => println!(
+                "{:indent$}Monomial: {} {}^{}",
+                "", coefficient, variable, exponent,
+                indent = indent
+            ),
+        }
+    }
+}
+
+impl Op {
+    pub fn get_precedence(&self) -> Option<u8> {
+        match self {
+            Op::Add | Op::Subtract => Some(1),
+            Op::Multiply | Op::Divide | Op::Modulo => Some(2),
+            Op::Power => Some(3),
+            Op::Equals => None,
+        }
+    }
+}
+
+impl Expr {
+    pub fn get_bin_op(self) -> Option<(Expr, Op, Expr)> {
+        match self {
+            Expr::BinOp { lhs, op, rhs } => Some((*lhs, op, *rhs)),
+            _ => None,
+        }
+    }
+}
 
 impl ToString for Expr {
     fn to_string(&self) -> String {

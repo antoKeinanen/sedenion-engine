@@ -1,4 +1,5 @@
 use wasm_bindgen::prelude::*;
+#[macro_use] extern crate log;
 
 mod math;
 mod error;

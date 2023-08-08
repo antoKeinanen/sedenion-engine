@@ -16,7 +16,6 @@ fn main() -> Result<()> {
         }
 
         let result = evaluate(&expression)?;
-        println!("= {}", result);
     }
 
     Ok(())
