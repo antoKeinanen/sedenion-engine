@@ -180,7 +180,12 @@ mod test {
     }
 
     #[test]
+    fn can_optimize_hoisting() {
+        assert_eq!("(1Y^(1)=1X^(1))", setup_equation("Y-X+X=X", "Y"));
+    }
+
+    #[test]
     fn can_optimize_chat_gpt_poly() {
-        assert_eq!("2X^(1)=-(2Y^(1))", setup_equation("-(3X)-4Y=5X-6Y", "Y"));
+        assert_eq!("(1Y^(1)=4X^(1))", setup_equation("-(3X)-4Y=5X-6Y", "Y"));
     }
 }
